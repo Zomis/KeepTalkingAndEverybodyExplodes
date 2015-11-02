@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+    </head>
+    <body>
+        <div>
+            Position clicked:
+            <input type="text" id="positionClicked" onkeypress="return submit(event)" />
+        </div>
+        <div>
+            Label clicked:
+            <input type="text" id="labelClicked" onkeypress="return submit(event)" />
+        </div>
+        <div>
+            <input type="button" onclick="next()" value="Next" />
+        </div>
+        <div id="currentInstructions">
+
+        </div>
+
+<script>
+    var data = [
+'Stage 1:',
+'If the display is 1, press the button in the second position.',
+'If the display is 2, press the button in the second position.',
+'If the display is 3, press the button in the third position.',
+'If the display is 4, press the button in the fourth position.',
+
+'Stage 2:',
+'If the display is 1, press the button labeled "4".',
+'If the display is 2, press the button in the same position as you pressed in stage 1.',
+'If the display is 3, press the button in the first position.',
+'If the display is 4, press the button in the same position as you pressed in stage 1.',
+
+'Stage 3:',
+'If the display is 1, press the button with the same label you pressed in stage 2.',
+'If the display is 2, press the button with the same label you pressed in stage 1.',
+'If the display is 3, press the button in the third position.',
+'If the display is 4, press the button labeled "4".',
+
+'Stage 4:',
+'If the display is 1, press the button in the same position as you pressed in stage 1.',
+'If the display is 2, press the button in the first position.',
+'If the display is 3, press the button in the same position as you pressed in stage 2.',
+'If the display is 4, press the button in the same position as you pressed in stage 2.',
+
+'Stage 5:',
+'If the display is 1, press the button with the same label you pressed in stage 1.',
+'If the display is 2, press the button with the same label you pressed in stage 2.',
+'If the display is 3, press the button with the same label you pressed in stage 4.',
+'If the display is 4, press the button with the same label you pressed in stage 3.',
+];
+
+var stageRegex = /^Stage (\d+)/g;
+var instructionRegex = /^If the display is (\d+), press the button (.*)/;
+
+var sameLabelRegex = /^with the same label you pressed in stage (\d+)/;
+var samePosRegex = /^in the same position as you pressed in stage (\d+)/;
+var labelledRegex = /^labeled "(\d+)"/;
+var positionRegex = /^in the (\w+) position/;
+var positionNames = {first: 1, second: 2, third: 3, fourth: 4};
+
+var currentStage = 1;
+var stage = 0;
+var memory = [null];
+function next() {
+    var posInput = document.getElementById('positionClicked');
+    var posClicked = parseInt(posInput.value, 10);
+
+    var labelInput = document.getElementById('labelClicked');
+    var labelClicked = parseInt(labelInput.value, 10);
+
+    if (posClicked >= 1 && labelClicked >= 1) {
+        console.log('clicked on position ' + posClicked + ' with label ' + labelClicked);
+        memory.push({ pos: posClicked, label: labelClicked });
+        currentStage++;
+        showInstructions();
+        posInput.value = "";
+        labelInput.value = "";
+        posInput.focus();
+    } else {
+        window.alert("Please fill in position and label clicked correctly.");
+    }
+}
+function submit(event) {
+    if (event.keyCode == 13 || event.keyCode == 10) {
+        next();
+        return false;
+    }
+    return true;
+}
+function showInstructions() {
+    var results = "";
+    for (var i = 0; i < data.length; i++) {
+        var str = data[i];
+        var stageMatch = stageRegex.exec(str);
+        var instructionMatch = instructionRegex.exec(str);
+        var result = "";
+        if (stageMatch) {
+            stage = parseInt(stageMatch[1], 10);
+            console.log("stage is now " + stage);
+        } else if (stage == currentStage && instructionMatch) {
+            var displayValue = instructionMatch[1];
+            result = "Display " + displayValue + ": ";
+            var pressString = instructionMatch[2];
+            console.log("instruction for display value " + displayValue + " is: " + pressString);
+            var sameLabelMatch = sameLabelRegex.exec(pressString);
+            var samePosMatch = samePosRegex.exec(pressString);
+            var labelMatch = labelledRegex.exec(pressString);
+            var positionMatch = positionRegex.exec(pressString);
+
+            var sameAs = sameLabelMatch || samePosMatch;
+            var label = sameLabelMatch || labelMatch;
+            var match = sameLabelMatch || samePosMatch || labelMatch || positionMatch;
+            console.log('sameAs: ' + sameAs + ' label: ' + label + ' match: ' + match);
+            if (sameAs) {
+                var memoryIndex = parseInt(sameAs[1]);
+                var fromStep = memory[memoryIndex];
+                if (label) {
+                    result += "LABEL " + fromStep.label;
+                } else {
+                    result += "POSITION " + fromStep.pos;
+                }
+                result += " (same as in step " + sameAs[1] + ")";
+            } else {
+                if (label) {
+                    result += "LABEL " + match[1];
+                } else {
+                    result += "POSITION " + positionNames[match[1]];
+                }
+            }
+            results += result + '<br />';
+        }
+    }
+    document.getElementById('currentInstructions').innerHTML = results;
+
+}
+showInstructions();
+
+</script>
+    </body>
+</html>
