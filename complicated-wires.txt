@@ -1,0 +1,19 @@
+Red	Blue	Star	LED	Letter
+No	No	No	No	C
+No	No	No	Yes	D
+No	No	Yes	No	C
+No	No	Yes	Yes	B
+No	Yes	No	No	S
+No	Yes	No	Yes	P
+No	Yes	Yes	No	D
+No	Yes	Yes	Yes	P
+
+Yes	No	No	No	S
+Yes	No	No	Yes	B
+Yes	No	Yes	No	C
+Yes	No	Yes	Yes	B
+Yes	Yes	No	No	S
+Yes	Yes	No	Yes	S
+Yes	Yes	Yes	No	P
+Yes	Yes	Yes	Yes	D
+
